@@ -319,15 +319,16 @@ private:
 
     createCloud(depth, color, cloud);
 
-    visualizer->addPointCloud(cloud, cloudName);
-    visualizer->setPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_POINT_SIZE, 1, cloudName);
+    visualizer->setShowFPS(true);
     visualizer->initCameraParameters();
     visualizer->setBackgroundColor(0, 0, 0);
-    visualizer->setPosition(mode == BOTH ? color.cols : 0, 0);
+    visualizer->addPointCloud(cloud, cloudName);
     visualizer->setSize(color.cols, color.rows);
-    visualizer->setShowFPS(true);
     visualizer->setCameraPosition(0, 0, 0, 0, -1, 0);
+    visualizer->setPosition(mode == BOTH ? color.cols : 0, 0);
     visualizer->registerKeyboardCallback(&Receiver::keyboardEvent, *this);
+    visualizer->registerPointPickingCallback(&Receiver::pointEvent, *this);
+    visualizer->setPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_POINT_SIZE, 1, cloudName);
 
     for(; running && ros::ok();)
     {
@@ -370,6 +371,17 @@ private:
         save = true;
         break;
       }
+    }
+  }
+
+  void pointEvent(const pcl::visualization::PointPickingEvent& event, void *)
+  {
+    std::cout << "Picking event active" << std::endl;
+    if(event.getPointIndex()!=-1)
+    {
+      float x,y,z;
+      event.getPoint(x,y,z);
+      std::cout << x<< ";" << y<<";" << z << std::endl;
     }
   }
 
